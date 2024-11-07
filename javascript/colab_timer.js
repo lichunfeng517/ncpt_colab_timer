@@ -2,56 +2,31 @@ let startTime;
 let timeout;
 let myHeaders = new Headers();
 myHeaders.append("Bypass-Tunnel-Reminder", "Thanks for checking my code lol");
-myHeaders.append(
-  "ngrok-skip-browser-warning",
-  "Seriously tho, thank you so much!"
-);
+myHeaders.append("ngrok-skip-browser-warning", "Seriously tho, thank you so much!");
 
 function updateTimer(el) {
-  const a = (i) => (i < 10 ? "0" + i : i);
-  const b = (x) => Math.floor(x);
-  let c = b(Date.now() / 1000) - startTime;
-  h = a(b(c / 3600));
-  m = a(b((c / 60) % 60));
-  s = a(b(c % 60));
-  // console.log(h,m,s)
-
-  // show different text betwen 4:58 and 5:15
-  if (c > 298 && c < 315) {
-    el.innerText =
-      "Usually there's captcha at this time, please check your colab (" +
-      h +
-      ":" +
-      m +
-      ":" +
-      s +
-      ")";
-  } else {
-    el.innerText = h + ":" + m + ":" + s;
-  }
-
-  //refresh timer every 30 seconds
-  if (c % 30 == 0) {
-    refreshTimer(el, true);
-    return;
-  }
-
+  if (!startTime) return;
+  const now = new Date().getTime();
+  const elapsed = Math.floor((now - startTime) / 1000); // in seconds
+  const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+  const seconds = String(elapsed % 60).padStart(2, '0');
+  el.innerText = `${hours}:${minutes}:${seconds}`;
   timeout = setTimeout(() => updateTimer(el), 1000);
 }
 
 function checkIgnoreUrls(){
-  // ignored urls may include : "paperspace", localhosts urls
   const ignoredUrls = [
     "paperspace",
     "localhost",
     "127.0.0.1",
     "0.0.0.0"
-  ]
+  ];
 
   for(let i = 0; i < ignoredUrls.length; i++){
-    if(window.location.href.includes(ignoredUrls[i])) return false
+    if(window.location.href.includes(ignoredUrls[i])) return false;
   }
-  return true
+  return true;
 }
 
 refreshTimer = (timerEl, notext = false) => {
@@ -60,7 +35,7 @@ refreshTimer = (timerEl, notext = false) => {
     timeout = null;
   }
   if (!notext) timerEl.innerText = "Connecting...";
-  fetch("file=static/colabTimer.txt", { cache: "no-store", headers: myHeaders })
+  fetch("/kaggle/working/colabTimer.txt", { cache: "no-store", headers: myHeaders })
     .then((response) => {
       if (response.status == 404) {
         timerEl.innerText = "Error. Colab disconnected!";
@@ -186,40 +161,5 @@ onUiLoaded(function () {
     const i2iGallery = gradioApp().querySelector("#img2img_gallery_container");
     nsfwBlur = !nsfwBlur;
     toggleNSFWBlurDiv.innerHTML = nsfwBlur
-      ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><path fill="currentColor" d="M432 448a15.92 15.92 0 0 1-11.31-4.69l-352-352a16 16 0 0 1 22.62-22.62l352 352A16 16 0 0 1 432 448ZM248 315.85l-51.79-51.79a2 2 0 0 0-3.39 1.69a64.11 64.11 0 0 0 53.49 53.49a2 2 0 0 0 1.69-3.39Zm16-119.7L315.87 248a2 2 0 0 0 3.4-1.69a64.13 64.13 0 0 0-53.55-53.55a2 2 0 0 0-1.72 3.39Z"/><path fill="currentColor" d="M491 273.36a32.2 32.2 0 0 0-.1-34.76c-26.46-40.92-60.79-75.68-99.27-100.53C349 110.55 302 96 255.68 96a226.54 226.54 0 0 0-71.82 11.79a4 4 0 0 0-1.56 6.63l47.24 47.24a4 4 0 0 0 3.82 1.05a96 96 0 0 1 116 116a4 4 0 0 0 1.05 3.81l67.95 68a4 4 0 0 0 5.4.24a343.81 343.81 0 0 0 67.24-77.4ZM256 352a96 96 0 0 1-93.3-118.63a4 4 0 0 0-1.05-3.81l-66.84-66.87a4 4 0 0 0-5.41-.23c-24.39 20.81-47 46.13-67.67 75.72a31.92 31.92 0 0 0-.64 35.54c26.41 41.33 60.39 76.14 98.28 100.65C162.06 402 207.92 416 255.68 416a238.22 238.22 0 0 0 72.64-11.55a4 4 0 0 0 1.61-6.64l-47.47-47.46a4 4 0 0 0-3.81-1.05A96 96 0 0 1 256 352Z"/></svg>`
-      : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><circle cx="256" cy="256" r="64" fill="currentColor"/><path fill="currentColor" d="M490.84 238.6c-26.46-40.92-60.79-75.68-99.27-100.53C349 110.55 302 96 255.66 96c-42.52 0-84.33 12.15-124.27 36.11c-40.73 24.43-77.63 60.12-109.68 106.07a31.92 31.92 0 0 0-.64 35.54c26.41 41.33 60.4 76.14 98.28 100.65C162 402 207.9 416 255.66 416c46.71 0 93.81-14.43 136.2-41.72c38.46-24.77 72.72-59.66 99.08-100.92a32.2 32.2 0 0 0-.1-34.76ZM256 352a96 96 0 1 1 96-96a96.11 96.11 0 0 1-96 96Z"/></svg>`;
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><path fill="currentColor" d="M432 448a15.92 15.92 0 0 1-11.31-4.69l-352-352a16 16 0 0 1 22.62-22.62l352 352A16 16 0 0 1 432 448ZM248 315.85l-51.79-51.79a2 2 0 0 0-3.39 1.69a64.11 64.11 0 0 0 53.49 53.49a2 2 0 0 0 1.69-3.39Zm16-119.7L315.87 248a2 2 0 0 0 3.4-1.69a64.13 64.13 0 0 0-53.55-53.55a2 2 0 0 0-1.72 3.39Z"/><path fill="currentColor" d="M491 273.36a32.2 32.2 0 0 0-.1-34.76c-26.46-40.92-60.79-75.68-99.27-100.53C349 110.55 302 96 255.68 96a226.54 226.54 0 0 0-71.82 11.79a4 4 0 0 0-1.56 6.63l47.24 47.24a4 4 0 0 0 3.82 1.05a96 96 0 0 1 116 116a4 4 0 0 0 1.05 3.81l67.95 68a4 4 0 0 0 5.4.24a343.81 343.81 0 0 0 67.24-77.4ZM256 352a96 96 0 0 1-93.3-118.63a4 4 0 0 0-1.05-3.81l-66.84-66.87a4 4 0 0 0-5.41-.23c-24.39 20.81-47 46.13-67.67 75.72a31.92 31.92 0 0 0-.64 35.54c26.41 41.33 60.39 76.14 98.28 100.65C162.06 402 207.92 416 255.68 416a238.22 238.22 0 0 0 72.64-11.55a4 4 0 0 0 1.61-6.64l-47.47-47.46a4 4 0 0 0-3.81
 
-    // if nsfwBlur is true, blur the entire gallery
-    if (nsfwBlur) {
-      t2iGallery.classList.add("ncpt_blur");
-      i2iGallery.classList.add("ncpt_blur");
-    } else {
-      t2iGallery.classList.remove("ncpt_blur");
-      i2iGallery.classList.remove("ncpt_blur");
-    }
-  };
-
-  // inject blur css
-  if (!document.getElementById("nsfw-blur-css")) {
-    const style = document.createElement("style");
-    style.id = "nsfw-blur-css";
-
-    // unblur on hover
-    style.innerHTML = `
-        .ncpt_blur {
-          filter: blur(10px) grayscale(1) brightness(0.3);
-          transition: filter 0.2s ease;
-        }
-        .ncpt_blur:hover {
-          filter: blur(0px) grayscale(0) brightness(1);
-        }
-      `;
-
-    document.head.appendChild(style);
-  }
-  mainDiv.appendChild(toggleNSFWBlurDiv);
-
-  quickSettings.parentNode.insertBefore(mainDiv, quickSettings.nextSibling);
-  if (checkIgnoreUrls())
-    refreshTimer(timerEl);
-});
